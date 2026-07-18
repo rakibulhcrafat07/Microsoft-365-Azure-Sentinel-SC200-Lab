@@ -1,186 +1,186 @@
-# Roadmap Detail — Project 3 থেকে Project 16 (M365 Admin + SC-200 + AZ-104)
+# Roadmap Detail — Project 3 through Project 16 (M365 Admin + SC-200 + AZ-104)
 
-তিনটা সার্টিফিকেশন ট্র্যাক (M365 Admin, SC-200, AZ-104) আলাদা না রেখে **একটাই বাস্তবসম্মত ক্রমে** সাজানো হয়েছে — যেভাবে একটা কোম্পানির IT ইনফ্রাস্ট্রাকচার, ইউজার ম্যানেজমেন্ট আর সিকিউরিটি একসাথে গড়ে ওঠে। প্রতিটা টাস্কের পাশে ট্যাগ দেওয়া আছে `[M365]` `[AZ-104]` `[SC-200]` — যাতে বুঝতে পারো কোনটা কোন সার্টিফিকেশনের জন্য কাজে লাগছে (একটা টাস্ক একাধিক ট্যাগও পেতে পারে)।
+Rather than keeping the three certification tracks (M365 Admin, SC-200, AZ-104) separate, they're sequenced into **one realistic order** — the way a company's IT infrastructure, user management, and security actually get built together, not in isolated silos. Each task is tagged `[M365]` `[AZ-104]` `[SC-200]` so it's clear which certification it supports (a task can carry more than one tag).
 
-**Environment:** BOL959.onmicrosoft.com | Azure ($200 credit) + Business Premium + Entra ID P2 + EMS E5 + Defender for O365 P2 + Sentinel
+**Environment:** `BOL959.onmicrosoft.com` | Azure ($200 credit) + Business Premium + Entra ID P2 + EMS E5 + Defender for O365 P2 + Sentinel
 
-⚠️ **সবচেয়ে জরুরি নিয়ম:** VM/Storage-এর মতো Azure রিসোর্স ব্যবহারের পর সবসময় **Stop (Deallocate)** বা **Delete** করে দেবে, নাহলে $200 ক্রেডিট দ্রুত ফুরিয়ে যাবে।
+⚠️ **Most important rule:** always **Stop (Deallocate)** or **Delete** Azure resources like VMs/Storage after use — otherwise the $200 credit burns through quickly.
 
 ---
 
 ## Project 3 — Identity Security (MFA, Conditional Access)
 `[M365]` `[SC-200]` `[AZ-104]`
 
-- [ ] MFA per-user enable করে টেস্ট লগইন করা
-- [ ] Conditional Access policy — নির্দিষ্ট group-এর জন্য MFA বাধ্যতামূলক
-- [ ] Location-based CA policy বানানো
-- [ ] Sign-in risk policy ও User risk policy (Identity Protection) সেটাপ করা
-- [ ] একটা user ইচ্ছাকৃতভাবে ৫-৬ বার ভুল পাসওয়ার্ড দিয়ে লগইন attempt করা (পরে Sentinel-এ খুঁজে বের করার জন্য কাঁচামাল)
+- [ ] Enable per-user MFA and test-login to verify it
+- [ ] Conditional Access policy — require MFA for a specific group
+- [ ] Build a location-based CA policy
+- [ ] Set up Sign-in Risk Policy and User Risk Policy (Identity Protection)
+- [ ] Deliberately fail a login 5–6 times for one user (raw material to hunt for in Sentinel later)
 
 ---
 
-## Project 4 — Admin Roles ও RBAC (M365 + Azure দুই জায়গাতেই)
+## Project 4 — Admin Roles & RBAC (both M365 and Azure)
 `[M365]` `[AZ-104]`
 
-- [ ] M365: একজন user-কে "User Administrator" role দিয়ে ক্ষমতা যাচাই করা
-- [ ] M365: Administrative Unit বানিয়ে scoped admin access
-- [ ] M365: PIM দিয়ে "eligible" role assignment (just-in-time admin) সেটাপ
-- [ ] `[AZ-104]` Azure RBAC: একটা Resource Group-এ একজন user-কে "Reader" role assign করা, সেই user দিয়ে লগইন করে ক্ষমতা যাচাই করা
-- [ ] `[AZ-104]` একটা custom RBAC role বানানো (যেমন শুধু VM start/stop করতে পারবে, delete না)
-- [ ] `[AZ-104]` একটা Resource Lock (Delete lock) বসিয়ে গুরুত্বপূর্ণ রিসোর্স accidental delete থেকে বাঁচানোর practice
+- [ ] M365: assign a user the "User Administrator" role and verify what it grants
+- [ ] M365: create an Administrative Unit for scoped admin access
+- [ ] M365: set up "eligible" (just-in-time) role assignment via PIM
+- [ ] `[AZ-104]` Azure RBAC: assign a user the "Reader" role on a Resource Group, sign in as that user and verify the access
+- [ ] `[AZ-104]` create a custom RBAC role (e.g. can only start/stop a VM, not delete it)
+- [ ] `[AZ-104]` apply a Resource Lock (Delete lock) to practice protecting a critical resource from accidental deletion
 
 ---
 
 ## Project 5 — Azure Storage
 `[AZ-104]`
-*কেন এখানে: ইউজার ও গভর্নেন্স রেডি, এখন ডেটা রাখার জায়গা বানানোর পালা — এটা VM/networking-এর আগে করলে বুঝতে সহজ হয়।*
+*Why here: identity and governance are in place — now it's time to build somewhere to put data, which is easier to understand before VMs/networking.*
 
-- [ ] একটা Storage Account বানানো (Standard, LRS)
-- [ ] Blob container বানিয়ে ফাইল upload/download করা
-- [ ] Access tier (Hot/Cool/Archive) পরিবর্তন করে পার্থক্য বোঝা
-- [ ] Azure File Share বানিয়ে map drive করে দেখা
-- [ ] Shared Access Signature (SAS) টোকেন জেনারেট করে সাময়িক অ্যাক্সেস দেওয়া
-- [ ] Lifecycle management policy বানানো (৩০ দিন পর blob automatically Cool tier-এ যাবে)
-- [ ] Soft delete enable করে একটা ফাইল delete করে recover করা
+- [ ] Create a Storage Account (Standard, LRS)
+- [ ] Create a Blob container and upload/download a file
+- [ ] Change access tier (Hot/Cool/Archive) and understand the difference
+- [ ] Create an Azure File Share and map it as a drive
+- [ ] Generate a Shared Access Signature (SAS) token for temporary access
+- [ ] Build a lifecycle management policy (blob auto-moves to Cool tier after 30 days)
+- [ ] Enable soft delete, delete a file, and recover it
 
 ---
 
 ## Project 6 — Azure Networking
 `[AZ-104]`
 
-- [ ] একটা Virtual Network (VNet) বানানো, ২টা subnet সহ
-- [ ] Network Security Group (NSG) বানিয়ে inbound/outbound rule সেট করা (যেমন শুধু নিজের IP থেকে RDP/SSH allow)
-- [ ] একটা Public IP বানানো ও associate করা
-- [ ] দুইটা VNet বানিয়ে VNet Peering সেটাপ করা
-- [ ] Azure Bastion বা just-in-time VM access explore করা (নিরাপদ remote access)
-- [ ] Azure DNS-এ একটা private DNS zone বানিয়ে explore করা
+- [ ] Create a Virtual Network (VNet) with 2 subnets
+- [ ] Build a Network Security Group (NSG) with inbound/outbound rules (e.g. allow RDP/SSH only from your own IP)
+- [ ] Create and associate a Public IP
+- [ ] Set up VNet Peering between two VNets
+- [ ] Explore Azure Bastion or just-in-time VM access (secure remote access)
+- [ ] Create and explore a private DNS zone in Azure DNS
 
 ---
 
-## Project 7 — Azure Compute (VM) — এখানেই বড় সুযোগ লুকিয়ে আছে
+## Project 7 — Azure Compute (VM) — the biggest opportunity is hidden here
 `[AZ-104]` `[SC-200]`
-*কেন এখানে গুরুত্বপূর্ণ: এই VM শুধু AZ-104-এর জন্য না — এটাতে Windows Server + Active Directory Domain Services (AD DS) বসালে তুমি একটা বাস্তব on-prem-স্টাইল ডোমেইন কন্ট্রোলার পাবে, যেটা দিয়ে Defender for Identity-তে আগে যেটা শুধু UI দেখা যাচ্ছিল, এখন থেকে বাস্তব ডেটা পাবে!*
+*Why this matters: this VM isn't just for AZ-104 — installing Windows Server + Active Directory Domain Services (AD DS) on it gives you a real on-prem-style domain controller, which turns Defender for Identity from a UI-only tour into a source of real data!*
 
-- [ ] একটা Windows Server VM বানানো (B-series burstable, সবচেয়ে সস্তা)
-- [ ] একটা Linux VM বানানো (Ubuntu) — RDP vs SSH access-এর পার্থক্য practice করা
-- [ ] VM resize করা (B1s → B2s), তারপর আবার ছোট করা
-- [ ] Managed Disk যোগ করা, snapshot নেওয়া
-- [ ] VM Extension ইনস্টল করা (যেমন Custom Script Extension)
-- [ ] Availability Set বা Availability Zone কনফিগার করে বোঝা (high availability concept)
-- [ ] **Windows VM-এ Active Directory Domain Services (AD DS) role ইনস্টল করা** — এটাই তোমার নিজের mini on-prem AD
-- [ ] সেই AD DS-এ Microsoft Defender for Identity sensor ইনস্টল করা (Defender portal → Settings → Identities থেকে sensor download লিংক পাওয়া যায়)
-- [ ] কাজ শেষে VM **Stop (Deallocate)** করা — চালু রাখলে ক্রেডিট দ্রুত শেষ হবে
+- [ ] Create a Windows Server VM (B-series burstable — cheapest option)
+- [ ] Create a Linux VM (Ubuntu) — practice the difference between RDP and SSH access
+- [ ] Resize a VM (B1s → B2s), then scale back down
+- [ ] Attach a Managed Disk and take a snapshot
+- [ ] Install a VM Extension (e.g. Custom Script Extension)
+- [ ] Configure an Availability Set or Availability Zone (high-availability concept)
+- [ ] **Install the Active Directory Domain Services (AD DS) role on the Windows VM** — this becomes your own mini on-prem AD
+- [ ] Install the Microsoft Defender for Identity sensor on that AD DS instance (the sensor download link is under Defender portal → Settings → Identities)
+- [ ] **Stop (Deallocate)** the VM when done — leaving it running burns through credit fast
 
 ---
 
-## Project 8 — মেইলরুম বানানো ও প্রোটেক্ট করা
+## Project 8 — Building and protecting the mailroom
 `[M365]` `[SC-200]`
 
-- [ ] Exchange admin center explore করা, একটা shared mailbox বানানো
-- [ ] একটা mail flow rule বানানো
-- [ ] Message trace দিয়ে delivery path ট্র্যাক করা
-- [ ] Anti-phishing, anti-spam, anti-malware policy কাস্টমাইজ করা
-- [ ] EICAR টেস্ট ফাইল দিয়ে anti-malware detection টেস্ট করা
-- [ ] Safe Links টেস্ট (নিজের দুই ইমেইলের মধ্যে)
-- [ ] Quarantine পেজে গিয়ে review/release/delete করা
-- [ ] **Attack Simulation Training** চালিয়ে বাস্তব ফিশিং সিমুলেশন রান করা
+- [ ] Explore the Exchange admin center, create a shared mailbox
+- [ ] Build a mail flow rule
+- [ ] Trace a message's delivery path with Message Trace
+- [ ] Customize anti-phishing, anti-spam, and anti-malware policies
+- [ ] Test anti-malware detection with an EICAR test file
+- [ ] Test Safe Links (between your own two email addresses)
+- [ ] Review/release/delete a message from the Quarantine page
+- [ ] Run **Attack Simulation Training** for a real phishing simulation
 
 ---
 
-## Project 9 — ডিভাইস ও এন্ডপয়েন্ট
+## Project 9 — Devices & Endpoints
 `[M365]` `[SC-200]`
 
-- [ ] Intune admin center explore করা
-- [ ] Compliance Policy ও Configuration Profile বানানো
-- [ ] সম্ভব হলে একটা ডিভাইস enroll করা (Project 7-এর Azure VM-ও Defender for Endpoint-এ onboard করা যায়)
-- [ ] EICAR ফাইল দিয়ে endpoint detection টেস্ট
-- [ ] Exposure/Vulnerability management সেকশন explore করা
+- [ ] Explore the Intune admin center
+- [ ] Build a Compliance Policy and a Configuration Profile
+- [ ] Enroll a device if possible (the Project 7 Azure VM can also be onboarded to Defender for Endpoint)
+- [ ] Test endpoint detection with the EICAR file
+- [ ] Explore the Exposure/Vulnerability Management section
 
 ---
 
-## Project 10 — ফাইল, কোলাবরেশন ও বাইরের অ্যাপ
+## Project 10 — Files, Collaboration & External Apps
 `[M365]` `[SC-200]`
 
-- [ ] SharePoint site collection বানানো, external sharing টগল করা
-- [ ] Teams বানিয়ে meeting/external access policy টেস্ট করা
-- [ ] Defender for Cloud Apps → app catalog, risk score explore করা
-- [ ] একটা File policy বানিয়ে টেস্ট করা
+- [ ] Create a SharePoint site collection, toggle external sharing
+- [ ] Create a Team and test meeting/external-access policies
+- [ ] Explore Defender for Cloud Apps → app catalog, risk scores
+- [ ] Build and test a File policy
 
 ---
 
-## Project 11 — ডেটা প্রোটেকশন ও কমপ্লায়েন্স
+## Project 11 — Data Protection & Compliance
 `[M365]`
 
-- [ ] Microsoft Purview compliance portal explore করা
-- [ ] Retention Policy বানানো
-- [ ] Basic DLP policy বানানো
-- [ ] Audit log search করে আগের সব activity ট্র্যাক করা
+- [ ] Explore the Microsoft Purview compliance portal
+- [ ] Build a Retention Policy
+- [ ] Build a basic DLP policy
+- [ ] Search the Audit Log to trace all prior activity
 
 ---
 
-## Project 12 — Azure Monitor + Log Analytics + Sentinel সংযোগ
+## Project 12 — Azure Monitor + Log Analytics + Sentinel Integration
 `[AZ-104]` `[SC-200]`
-*কেন একসাথে: AZ-104-এর "Monitor and maintain Azure resources" ডোমেইন আর Sentinel-এর ভিত্তি (Log Analytics workspace) একই টেকনোলজি — এখানে দুটো একসাথে শেখা সবচেয়ে efficient।*
+*Why together: AZ-104's "Monitor and maintain Azure resources" domain and Sentinel's foundation (Log Analytics workspace) are the same underlying technology — learning both together is the most efficient path.*
 
-- [ ] Project 7-এর VM-এ Azure Monitor Agent ইনস্টল করে diagnostics ডেটা পাঠানো
-- [ ] Metrics ও Alerts (যেমন CPU 80%-এর বেশি হলে email alert) সেটাপ করা
-- [ ] VM-এর Activity Log দেখা (কে কী করেছে রিসোর্সে)
-- [ ] Data connectors পেজে প্রতিটা connector-এর "Open connector page" ঘুরে দেখা
-- [ ] Log Analytics-এ `SigninLogs`, `AuditLogs`, `SecurityAlert`, `Heartbeat` (VM থেকে) টেবিল browse করা
+- [ ] Install the Azure Monitor Agent on the Project 7 VM to send diagnostics data
+- [ ] Set up Metrics and Alerts (e.g. email alert if CPU exceeds 80%)
+- [ ] Review the VM's Activity Log (who did what to the resource)
+- [ ] Walk through every connector's "Open connector page" on the Data Connectors page
+- [ ] Browse the `SigninLogs`, `AuditLogs`, `SecurityAlert`, and `Heartbeat` (from the VM) tables in Log Analytics
 
 ---
 
 ## Project 13 — KQL (Kusto Query Language)
 `[SC-200]` `[AZ-104]`
 
-- [ ] বেসিক syntax: `where`, `project`, `summarize`, `sort by`
-- [ ] Project 3-এর ভুল পাসওয়ার্ড attempt-গুলো `SigninLogs`-এ খুঁজে বের করা
-- [ ] `summarize count() by UserPrincipalName` দিয়ে বিশ্লেষণ করা
-- [ ] `join` অপারেটর দিয়ে দুইটা টেবিল জোড়া লাগানো
-- [ ] Time filter (`ago(24h)`) ব্যবহার করা
-- [ ] VM-এর `Heartbeat`/`Perf` টেবিল কুয়েরি করে resource health দেখা
-- [ ] একটা built-in Workbook (Identity & Access) চালু করা
+- [ ] Basic syntax: `where`, `project`, `summarize`, `sort by`
+- [ ] Find the failed login attempts from Project 3 in `SigninLogs`
+- [ ] Analyze with `summarize count() by UserPrincipalName`
+- [ ] Practice joining two tables with the `join` operator
+- [ ] Use a time filter (`ago(24h)`)
+- [ ] Query the VM's `Heartbeat`/`Perf` tables to check resource health
+- [ ] Launch a built-in Workbook (Identity & Access)
 
 ---
 
 ## Project 14 — Analytics Rules (Detection Engineering)
 `[SC-200]`
 
-- [ ] Content Hub থেকে একটা built-in Analytics Rule enable করা
-- [ ] নিজের Scheduled Query Rule বানানো (fail login pattern দিয়ে)
-- [ ] Severity ও MITRE ATT&CK mapping সেট করা
-- [ ] Rule থেকে তৈরি Incident চেক করা
+- [ ] Enable a built-in Analytics Rule from the Content Hub
+- [ ] Build your own Scheduled Query Rule (based on the fail-login pattern)
+- [ ] Set severity and MITRE ATT&CK tactic mapping
+- [ ] Review the Incident generated by the rule
 
 ---
 
-## Project 15 — Incident Investigation (এবার বাস্তব Identity ডেটা সহ)
+## Project 15 — Incident Investigation (now with real Identity data)
 `[SC-200]`
-*Project 7-এ AD DS + Defender for Identity sensor বসানোর সুফল এখানে পাবে — এবার Identities সেকশনে সত্যিকারের ডেটা আসবে।*
+*This is where the payoff from installing AD DS + the Defender for Identity sensor in Project 7 shows up — the Identities section now has real data.*
 
-- [ ] Incidents পেজে গিয়ে evidence, entities, timeline দেখা
-- [ ] Attack Simulation থেকে তৈরি phishing incident end-to-end investigate করা
-- [ ] Defender for Identity-এর কোনো alert থাকলে সেটা investigate করা (VM-এ suspicious login simulate করে)
-- [ ] Hunting সেকশনে built-in query browse করে custom hunting query চালানো
-- [ ] একটা bookmark তৈরি করা
+- [ ] Open an incident and review evidence, entities, and timeline
+- [ ] Fully investigate the phishing incident generated by the Attack Simulation
+- [ ] Investigate any Defender for Identity alert (simulate a suspicious login on the VM)
+- [ ] Browse built-in queries in the Hunting section and run a custom hunting query
+- [ ] Create a bookmark
 
 ---
 
-## Project 16 — Automation, Backup, Cost Management ও Reporting
+## Project 16 — Automation, Backup, Cost Management & Reporting
 `[M365]` `[AZ-104]` `[SC-200]`
 
-- [ ] `[SC-200]` একটা Playbook বানানো (নতুন incident এলে email notification)
-- [ ] `[SC-200]` Automation rule দিয়ে Analytics Rule-এর সাথে playbook auto-trigger
-- [ ] `[AZ-104]` Azure Backup সেটাপ করে Project 7-এর VM-এর একটা backup নেওয়া
-- [ ] `[AZ-104]` Cost Management + Billing-এ গিয়ে কোন রিসোর্স কত খরচ করছে দেখা, budget alert সেট করা
-- [ ] `[M365]` Usage reports ও Secure Score চেক করে ২-৩টা recommendation implement করা
-- [ ] `[AZ-104]` সেশন শেষে অব্যবহৃত সব রিসোর্স (VM, disk, public IP) delete করে ক্রেডিট বাঁচানো
+- [ ] `[SC-200]` Build a Playbook (email notification when a new incident arrives)
+- [ ] `[SC-200]` Use an Automation Rule to auto-trigger the playbook from an Analytics Rule
+- [ ] `[AZ-104]` Set up Azure Backup and take a backup of the Project 7 VM
+- [ ] `[AZ-104]` Review spend by resource in Cost Management + Billing, and set a budget alert
+- [ ] `[M365]` Check Usage Reports and Secure Score, implement 2–3 recommendations
+- [ ] `[AZ-104]` Delete all unused resources (VM, disk, public IP) at the end of the session to conserve credit
 
 ---
 
-## এগোনোর নিয়ম
+## How to proceed
 
-1. ক্রম মেনে চলো — প্রতিটা Phase পরেরটার জন্য ভিত্তি বা ডেটা তৈরি করে (বিশেষ করে Project 7-এর AD DS VM এবং Project 3-এর ভুল লগইন — এগুলো পরে কাজে লাগবে)
-2. Azure রিসোর্স (VM বিশেষত) ব্যবহারের পর **সবসময় বন্ধ/ডিলিট** করার অভ্যাস করো
-3. প্রতিটা Phase শেষে ২-৩ লাইন নোট রাখো
-4. আনুমানিক সময়: Project 2-3 (১ সপ্তাহ), Project 5-6 (১.৫-২ সপ্তাহ, Azure-heavy), Project 8-10 (২ সপ্তাহ), Project 12-15 (২-৩ সপ্তাহ)
-5. মোট প্রায় ৭-৮ সপ্তাহে তিনটা সার্টিফিকেশনের হ্যান্ডস-অন বেস তৈরি হয়ে যাবে
+1. Follow the sequence — each project builds the foundation or data the next one needs (the Project 7 AD DS VM and the Project 3 failed logins are both used again later)
+2. Make it a habit to **always stop/delete** Azure resources (VMs especially) after use
+3. Keep 2–3 lines of notes at the end of every project
+4. Rough timeline: Projects 3–4 (1 week), Projects 5–6 (1.5–2 weeks, Azure-heavy), Projects 8–10 (2 weeks), Projects 12–15 (2–3 weeks)
+5. In roughly 7–8 weeks, the hands-on foundation for all three certifications should be in place
