@@ -2,7 +2,7 @@
 
 **Building a real, hands-on Microsoft 365 + Azure security and administration environment — end to end, on free-tier and trial subscriptions only — in preparation for Microsoft 365 Administration, SC-200 (Security Operations Analyst), and AZ-104 (Azure Administrator).**
 
-![Cost](https://img.shields.io/badge/cost-%240-success) ![Status](https://img.shields.io/badge/status-in%20progress-blue) ![Projects](https://img.shields.io/badge/projects-2%20of%2016%20complete-orange)
+![Cost](https://img.shields.io/badge/cost-%240-success) ![Status](https://img.shields.io/badge/status-in%20progress-blue) ![Projects](https://img.shields.io/badge/projects-3%20of%2016%20complete-orange)
 
 ---
 
@@ -12,7 +12,8 @@
 - [The stack](#the-stack)
 - [Project 1 — Environment Setup & Cross-Tenant Recovery](#project-1--environment-setup--cross-tenant-recovery)
 - [Project 2 — Tenant, Users & Governance Foundation](#project-2--tenant-users--governance-foundation)
-- [Key learnings across both projects](#key-learnings-across-both-projects)
+- [Project 3 — Identity Security: MFA, Conditional Access & Identity Protection](#project-3--identity-security-mfa-conditional-access--identity-protection)
+- [Key learnings across all three projects](#key-learnings-across-all-three-projects)
 - [Roadmap — upcoming projects](#roadmap--upcoming-projects)
 - [About](#about)
 
@@ -77,13 +78,34 @@ Summary of what was built:
 
 ---
 
-## Key learnings across both projects
+## Project 3 — Identity Security: MFA, Conditional Access & Identity Protection
+
+**Goal:** move beyond password-only sign-in by layering per-user MFA, group-scoped Conditional Access, location-based access, and risk-based policies on top of the Project 1–2 tenant — then verify with logs that the policies actually fire.
+
+**📄 Full detail (9 screenshots, every sub-step documented): [`project-3-identity-security/README.md`](./project-3-identity-security/README.md)**
+
+Summary of what was built:
+
+- **Per-user MFA** enabled for test user `Shakhawat Hossian Anik`, as a baseline before moving to Conditional Access
+- **CA01** — required MFA for the existing `IT-Support-Team` group (reused rather than duplicated) across all cloud apps
+- **CA02** — location-based access: a `Bangladesh-Trusted` named location, MFA required everywhere except it
+- **CA03 / CA04** — sign-in risk and user risk policies, rebuilt as Conditional Access after discovering the classic Identity Protection risk policy pages are being retired October 1, 2026
+- **Verification** — 5 deliberate failed logins, confirmed end-to-end via Sign-in logs (error `50126`) and the Conditional Access Policy Impact tab, all policies kept in **Report-only** throughout
+
+![All four Conditional Access policies, Report-only](./project-3-identity-security/images/06_all_4_ca_policies.png)
+*CA01 through CA04, all evaluated in Report-only mode before anything gets enforced.*
+
+---
+
+## Key learnings across all three projects
 
 1. **Payment failures can be bank-side, not account-side.** A domestic debit card that verifies a one-time Azure hold can still be blocked on a recurring-billing merchant. A dual-currency credit card resolved it reliably.
 2. **Always confirm which tenant is active before provisioning.** Azure and Microsoft 365 sessions can silently diverge into different directories even when the sign-in usernames look identical — this cost an entire rebuild.
 3. **The simplified admin UI is not the full picture.** The Microsoft 365 admin center covers common tasks well, but advanced identity governance (dynamic groups, PIM, administrative units) lives in the Entra admin center.
 4. **Background processes aren't instant.** Dynamic group membership, license propagation, and connector activation can all take several minutes — don't assume a misconfiguration too early.
 5. **Tag at creation, not after.** Applying `environment`/`owner` tags when a Resource Group is created (rather than retrofitting later) keeps cost tracking clean once Storage and Compute projects begin.
+6. **Report-only is the safe default for new Conditional Access policies.** It confirms a policy is evaluated correctly against real sign-in activity before it can lock anyone out.
+7. **Microsoft's own tooling is mid-migration.** Classic Identity Protection risk policies are being sunset in favor of Conditional Access — worth knowing since the live portal won't always match older certification material.
 
 ---
 
@@ -93,7 +115,7 @@ Summary of what was built:
 |---|---|---|
 | 1 | Environment Setup & Cross-Tenant Recovery | ✅ Complete |
 | 2 | Tenant, Users & Governance Foundation | ✅ Complete |
-| 3 | Identity Security — MFA, Conditional Access, Identity Protection | M365 / SC-200 |
+| 3 | Identity Security — MFA, Conditional Access, Identity Protection | ✅ Complete |
 | 4 | RBAC & Delegated Administration (M365 + Azure) | M365 / AZ-104 |
 | 5 | Azure Storage | AZ-104 |
 | 6 | Azure Networking | AZ-104 |
