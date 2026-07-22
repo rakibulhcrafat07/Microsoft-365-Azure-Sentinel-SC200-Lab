@@ -8,14 +8,16 @@ Rather than keeping the three certification tracks (M365 Admin, SC-200, AZ-104) 
 
 ---
 
-## Project 3 — Identity Security (MFA, Conditional Access)
+## Project 3 — Identity Security (MFA, Conditional Access) ✅ Complete
 `[M365]` `[SC-200]` `[AZ-104]`
 
-- [ ] Enable per-user MFA and test-login to verify it
-- [ ] Conditional Access policy — require MFA for a specific group
-- [ ] Build a location-based CA policy
-- [ ] Set up Sign-in Risk Policy and User Risk Policy (Identity Protection)
-- [ ] Deliberately fail a login 5–6 times for one user (raw material to hunt for in Sentinel later)
+Full detail: [`project-3-identity-security/README.md`](./project-3-identity-security/README.md)
+
+- [x] Enable per-user MFA and test-login to verify it
+- [x] Conditional Access policy — require MFA for a specific group
+- [x] Build a location-based CA policy
+- [x] Set up Sign-in Risk Policy and User Risk Policy (Identity Protection) — rebuilt as Conditional Access policies (CA03/CA04) after the classic risk policy pages showed a retirement notice (Oct 1, 2026)
+- [x] Deliberately fail a login 5–6 times for one user (raw material to hunt for in Sentinel later)
 
 ---
 
