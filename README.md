@@ -102,7 +102,7 @@ Summary of what was built:
 
 **Goal:** move from "everyone is Global Admin / Owner" to scoped, least-privilege access — per-role M365 admin delegation, PIM just-in-time activation, Azure RBAC (built-in and custom), and a hard guardrail (Resource Lock) that survives even Owner-level access.
 
-**📄 Full detail (22 screenshots, every sub-step documented): [`project-4-rbac-delegated-administration/README.md`](./project-4-rbac-delegated-administration/README.md)**
+**📄 Full detail (22 screenshots, every sub-step documented): [`project-4-rbac-delegated-administration/README.md`](./project-4-rbac-iam/README.md)**
 
 Summary of what was built:
 
