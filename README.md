@@ -2,7 +2,7 @@
 
 **Building a real, hands-on Microsoft 365 + Azure security and administration environment — end to end, on free-tier and trial subscriptions only — in preparation for Microsoft 365 Administration, SC-200 (Security Operations Analyst), and AZ-104 (Azure Administrator).**
 
-![Cost](https://img.shields.io/badge/cost-%240-success) ![Status](https://img.shields.io/badge/status-in%20progress-blue) ![Projects](https://img.shields.io/badge/projects-3%20of%2016%20complete-orange)
+![Cost](https://img.shields.io/badge/cost-%240-success) ![Status](https://img.shields.io/badge/status-in%20progress-blue) ![Projects](https://img.shields.io/badge/projects-4%20of%2016%20complete-orange)
 
 ---
 
@@ -13,7 +13,8 @@
 - [Project 1 — Environment Setup & Cross-Tenant Recovery](#project-1--environment-setup--cross-tenant-recovery)
 - [Project 2 — Tenant, Users & Governance Foundation](#project-2--tenant-users--governance-foundation)
 - [Project 3 — Identity Security: MFA, Conditional Access & Identity Protection](#project-3--identity-security-mfa-conditional-access--identity-protection)
-- [Key learnings across all three projects](#key-learnings-across-all-three-projects)
+- [Project 4 — RBAC & Delegated Administration (M365 + Azure)](#project-4--rbac--delegated-administration-m365--azure)
+- [Key learnings across all four projects](#key-learnings-across-all-four-projects)
 - [Roadmap — upcoming projects](#roadmap--upcoming-projects)
 - [About](#about)
 
@@ -32,7 +33,7 @@ Every stage is called a **Project** rather than a "phase" or "module," because t
 | Component | Role |
 |---|---|
 | Microsoft 365 Business Premium (trial) | Core tenant — mail, collaboration, base licensing |
-| Microsoft Entra ID P2 (trial) | Identity governance — Conditional Access, Identity Protection, dynamic groups |
+| Microsoft Entra ID P2 (trial) | Identity governance — Conditional Access, Identity Protection, dynamic groups, PIM |
 | Enterprise Mobility + Security E5 (trial) | Defender for Identity, Defender for Cloud Apps |
 | Microsoft Defender for Office 365, Plan 2 (trial) | Email threat protection |
 | Microsoft Sentinel (Azure) | SIEM/SOAR — detection engineering, KQL, incident response |
@@ -97,7 +98,27 @@ Summary of what was built:
 
 ---
 
-## Key learnings across all three projects
+## Project 4 — RBAC & Delegated Administration (M365 + Azure)
+
+**Goal:** move from "everyone is Global Admin / Owner" to scoped, least-privilege access — per-role M365 admin delegation, PIM just-in-time activation, Azure RBAC (built-in and custom), and a hard guardrail (Resource Lock) that survives even Owner-level access.
+
+**📄 Full detail (22 screenshots, every sub-step documented): [`project-4-rbac-delegated-administration/README.md`](./project-4-rbac-delegated-administration/README.md)**
+
+Summary of what was built:
+
+- **M365 User Administrator role** — assigned and verified: could reset passwords and create users, blocked from granting Global Admin
+- **Administrative Unit** — a scoped admin whose Active Users list only showed in-scope members; accounts outside the AU didn't just become un-editable, they weren't in the list at all
+- **PIM eligible role** — Exchange Administrator set to Eligible (not Active); confirmed the account was blocked before activation, then got full Exchange admin center access the moment it self-activated
+- **Azure RBAC — Reader** — could view a resource group, blocked from creating any resource in it
+- **Custom RBAC role** ("VM Operator") — built from just 3 Actions (start/restart/stop); the assigned user hit a 401 even opening the resource group blade, since narrowly-scoped custom roles don't inherit the generic `resourceGroups/read` permission that Reader carries as a wildcard
+- **Resource Lock** — a Delete lock that blocked deletion even when attempted from the tenant's own Global Administrator / Owner account
+
+![Delete blocked by lock, even for the account's own Owner role](./project-4-rbac-delegated-administration/images/s24_delete_blocked_by_lock.png)
+*Locks sit above RBAC entirely — no role assignment, however privileged, overrides one.*
+
+---
+
+## Key learnings across all four projects
 
 1. **Payment failures can be bank-side, not account-side.** A domestic debit card that verifies a one-time Azure hold can still be blocked on a recurring-billing merchant. A dual-currency credit card resolved it reliably.
 2. **Always confirm which tenant is active before provisioning.** Azure and Microsoft 365 sessions can silently diverge into different directories even when the sign-in usernames look identical — this cost an entire rebuild.
@@ -106,6 +127,9 @@ Summary of what was built:
 5. **Tag at creation, not after.** Applying `environment`/`owner` tags when a Resource Group is created (rather than retrofitting later) keeps cost tracking clean once Storage and Compute projects begin.
 6. **Report-only is the safe default for new Conditional Access policies.** It confirms a policy is evaluated correctly against real sign-in activity before it can lock anyone out.
 7. **Microsoft's own tooling is mid-migration.** Classic Identity Protection risk policies are being sunset in favor of Conditional Access — worth knowing since the live portal won't always match older certification material.
+8. **Scoping restricts visibility, not just actions.** Both the Administrative Unit and the custom RBAC role showed accounts/resources disappearing from view entirely, rather than throwing an access-denied error.
+9. **Eligible ≠ Active, and it's easy to get one when you meant the other.** This tenant's Entra ID P2 license extends PIM governance to Azure resource roles by default — two separate role assignments in Project 4 landed as Eligible when Active was intended.
+10. **A Resource Lock is the strongest guardrail in the whole RBAC toolkit.** It's the only control so far that held even against the tenant's own Global Administrator.
 
 ---
 
@@ -116,7 +140,7 @@ Summary of what was built:
 | 1 | Environment Setup & Cross-Tenant Recovery | ✅ Complete |
 | 2 | Tenant, Users & Governance Foundation | ✅ Complete |
 | 3 | Identity Security — MFA, Conditional Access, Identity Protection | ✅ Complete |
-| 4 | RBAC & Delegated Administration (M365 + Azure) | M365 / AZ-104 |
+| 4 | RBAC & Delegated Administration (M365 + Azure) | ✅ Complete |
 | 5 | Azure Storage | AZ-104 |
 | 6 | Azure Networking | AZ-104 |
 | 7 | Azure Compute (+ on-prem-style AD DS for Defender for Identity) | AZ-104 / SC-200 |
