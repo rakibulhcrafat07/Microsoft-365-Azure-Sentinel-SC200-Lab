@@ -2,7 +2,7 @@
 
 **Building a real, hands-on Microsoft 365 + Azure security and administration environment — end to end, on free-tier and trial subscriptions only — in preparation for Microsoft 365 Administration, SC-200 (Security Operations Analyst), and AZ-104 (Azure Administrator).**
 
-![Cost](https://img.shields.io/badge/cost-%240-success) ![Status](https://img.shields.io/badge/status-in%20progress-blue) ![Projects](https://img.shields.io/badge/projects-4%20of%2016%20complete-orange)
+![Cost](https://img.shields.io/badge/cost-%240-success) ![Status](https://img.shields.io/badge/status-in%20progress-blue) ![Projects](https://img.shields.io/badge/projects-5%20of%2016%20complete-orange)
 
 ---
 
@@ -14,7 +14,8 @@
 - [Project 2 — Tenant, Users & Governance Foundation](#project-2--tenant-users--governance-foundation)
 - [Project 3 — Identity Security: MFA, Conditional Access & Identity Protection](#project-3--identity-security-mfa-conditional-access--identity-protection)
 - [Project 4 — RBAC & Delegated Administration (M365 + Azure)](#project-4--rbac--delegated-administration-m365--azure)
-- [Key learnings across all four projects](#key-learnings-across-all-four-projects)
+- [Project 5 — Azure Storage](#project-5--azure-storage-az-104)
+- [Key learnings across all five projects](#key-learnings-across-all-five-projects)
 - [Roadmap — upcoming projects](#roadmap--upcoming-projects)
 - [About](#about)
 
@@ -118,7 +119,27 @@ Summary of what was built:
 
 ---
 
-## Key learnings across all four projects
+## Project 5 — Azure Storage (AZ-104)
+
+**Goal:** move from access-control theory into a mechanic AZ-104 tests directly — Blob storage and tiering, a real mountable Azure File Share, scoped time-boxed access via SAS tokens, an automated cost-lifecycle policy, and soft delete recovery — each one tested end-to-end rather than just configured and screenshotted.
+
+**📄 Full detail (38 screenshots, every sub-step documented): [`project-5-storage-management/README.md`](./project-5-storage-management/README.md)**
+
+Summary of what was built:
+
+- **Storage account + Blob container** — `strakibullab01`, container `mycontainer`, a test file uploaded and downloaded; caught the account defaulting to Geo-redundant storage (GRS) and switched to Locally-redundant (LRS) before creation
+- **Access tier change** — moved a blob from Hot to Cool, verified via the ACCESS TIER LAST MODIFIED timestamp that the change actually committed rather than just appearing to
+- **Azure File Share** — `myfileshare` mounted as a real Windows network drive; the creation wizard tried to silently enable Azure Backup by default (unchecked before creating), and the mount itself succeeded in an Administrator PowerShell session but didn't appear in File Explorer until re-run in a normal session — a genuine admin-vs-user drive-mapping gap
+- **SAS token** — generated a read-only, HTTPS-only, time-boxed Shared Access Signature and tested the URL live in a private browser tab with zero Azure login
+- **Lifecycle management policy** — a single rule automating the full cost lifecycle: 30 days → Cool, 90 days → Archive, 365 days → Delete
+- **Soft delete** — deleted a blob on purpose, confirmed it disappeared from the container's default "active blobs" view, then recovered it via Undelete with identical hash, tier, and size intact
+
+![SAS URL opened directly in a private browser tab, no login required](./project-5-storage-management/images/24_sas-url-tested-in-browser.png)
+*Read-only, time-boxed, zero credentials exchanged — the SAS token doing exactly what it's supposed to.*
+
+---
+
+## Key learnings across all five projects
 
 1. **Payment failures can be bank-side, not account-side.** A domestic debit card that verifies a one-time Azure hold can still be blocked on a recurring-billing merchant. A dual-currency credit card resolved it reliably.
 2. **Always confirm which tenant is active before provisioning.** Azure and Microsoft 365 sessions can silently diverge into different directories even when the sign-in usernames look identical — this cost an entire rebuild.
@@ -130,6 +151,8 @@ Summary of what was built:
 8. **Scoping restricts visibility, not just actions.** Both the Administrative Unit and the custom RBAC role showed accounts/resources disappearing from view entirely, rather than throwing an access-denied error.
 9. **Eligible ≠ Active, and it's easy to get one when you meant the other.** This tenant's Entra ID P2 license extends PIM governance to Azure resource roles by default — two separate role assignments in Project 4 landed as Eligible when Active was intended.
 10. **A Resource Lock is the strongest guardrail in the whole RBAC toolkit.** It's the only control so far that held even against the tenant's own Global Administrator.
+11. **Portal wizards default to the option that costs more or does more than asked.** Geo-redundant storage over Locally-redundant, and an auto-enabled backup vault during file share creation, both surfaced in Project 5 alone — worth a second look on every Create screen, not just these two.
+12. **A soft-deleted resource often isn't visible in the default UI view**, which can look identical to a permanent delete if the filter itself isn't known. Visibility settings deserve as much attention as the safety feature underneath them.
 
 ---
 
@@ -141,7 +164,7 @@ Summary of what was built:
 | 2 | Tenant, Users & Governance Foundation | ✅ Complete |
 | 3 | Identity Security — MFA, Conditional Access, Identity Protection | ✅ Complete |
 | 4 | RBAC & Delegated Administration (M365 + Azure) | ✅ Complete |
-| 5 | Azure Storage | AZ-104 |
+| 5 | Azure Storage | ✅ Complete |
 | 6 | Azure Networking | AZ-104 |
 | 7 | Azure Compute (+ on-prem-style AD DS for Defender for Identity) | AZ-104 / SC-200 |
 | 8 | Email Security — Exchange + Defender for Office 365 | M365 / SC-200 |
