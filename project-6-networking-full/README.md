@@ -11,11 +11,6 @@
 
 ---
 
-## 0. Starting Point
-
-![Phase 5 task checklist](images/001.png)
-![Repo state before this project](images/002.png)
-
 ## 1. VNet + 2 Subnets
 
 Created `vnet-lab-sc200` (`10.10.0.0/16`, East US, `RG-Phase1-Lab`) with two subnets: `subnet-app` (`10.10.1.0/24`) and `subnet-data` (`10.10.2.0/24`).
