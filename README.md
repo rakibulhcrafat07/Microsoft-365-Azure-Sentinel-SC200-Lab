@@ -2,7 +2,7 @@
 
 **Building a real, hands-on Microsoft 365 + Azure security and administration environment — end to end, on free-tier and trial subscriptions only — in preparation for Microsoft 365 Administration, SC-200 (Security Operations Analyst), and AZ-104 (Azure Administrator).**
 
-![Cost](https://img.shields.io/badge/cost-%240-success) ![Status](https://img.shields.io/badge/status-in%20progress-blue) ![Projects](https://img.shields.io/badge/projects-5%20of%2016%20complete-orange)
+![Cost](https://img.shields.io/badge/cost-%240-success) ![Status](https://img.shields.io/badge/status-in%20progress-blue) ![Projects](https://img.shields.io/badge/projects-6%20of%2016%20complete-orange)
 
 ---
 
@@ -15,7 +15,8 @@
 - [Project 3 — Identity Security: MFA, Conditional Access & Identity Protection](#project-3--identity-security-mfa-conditional-access--identity-protection)
 - [Project 4 — RBAC & Delegated Administration (M365 + Azure)](#project-4--rbac--delegated-administration-m365--azure)
 - [Project 5 — Azure Storage](#project-5--azure-storage-az-104)
-- [Key learnings across all five projects](#key-learnings-across-all-five-projects)
+- [Project 6 — Azure Networking: VNet, NSG, Peering & Bastion](#project-6--azure-networking-vnet-nsg-peering--bastion-az-104)
+- [Key learnings across all six projects](#key-learnings-across-all-six-projects)
 - [Roadmap — upcoming projects](#roadmap--upcoming-projects)
 - [About](#about)
 
@@ -139,7 +140,28 @@ Summary of what was built:
 
 ---
 
-## Key learnings across all five projects
+## Project 6 — Azure Networking: VNet, NSG, Peering & Bastion (AZ-104)
+
+**Goal:** build the core network layer for the lab — a segmented VNet, a security-group-filtered subnet, a public IP, peered connectivity between two VNets, and Azure Bastion for remote access that never requires a VM to carry its own public IP. AWS VPC was dropped from this phase entirely; the lab stays Azure/Microsoft-only going forward.
+
+**📄 Full detail (90 screenshots, every sub-step documented): [`project-6-networking-full/README.md`](./project-6-networking-full/README.md)**
+
+Summary of what was built:
+
+- **VNet + 2 subnets** — `vnet-lab-sc200` (`10.10.0.0/16`) split into `subnet-app` (`10.10.1.0/24`) and `subnet-data` (`10.10.2.0/24`)
+- **NSG with inbound/outbound rules** — `nsg-app-subnet`, with SSH (22) restricted to a single source IP rather than the open internet, an explicit outbound HTTPS (443) rule, and the NSG associated directly to `subnet-app`
+- **Public IP** — a standalone Standard-SKU static IP, provisioned for later use
+- **VNet Peering** — a second VNet (`vnet-lab-sc200-peer`, non-overlapping `10.20.0.0/16`) peered with the first, verified **from both sides** (each VNet shows its own peering link name and "Connected" status independently)
+- **Azure Bastion** — reviewed the configuration first, then actually deployed it, spun up a no-public-IP test VM, and connected to it live through the browser — confirmed with a real shell prompt, not just a green checkmark — before deleting everything to stop the hourly billing
+
+Along the way: a home ISP that rotated its public IP mid-session and broke the just-configured NSG rule, three VM sizes rejected as unavailable before one finally deployed, and a resource-group Delete lock (left over from Project 4) that silently blocked the cleanup until it was found, lifted, and restored afterward.
+
+![Connected via Bastion — a live shell, no public IP on the VM](./project-6-networking-full/images/078.png)
+*azureuser@vm-test-linux:~$ — proof the connection works without the VM ever being exposed to the internet.*
+
+---
+
+## Key learnings across all six projects
 
 1. **Payment failures can be bank-side, not account-side.** A domestic debit card that verifies a one-time Azure hold can still be blocked on a recurring-billing merchant. A dual-currency credit card resolved it reliably.
 2. **Always confirm which tenant is active before provisioning.** Azure and Microsoft 365 sessions can silently diverge into different directories even when the sign-in usernames look identical — this cost an entire rebuild.
@@ -150,9 +172,13 @@ Summary of what was built:
 7. **Microsoft's own tooling is mid-migration.** Classic Identity Protection risk policies are being sunset in favor of Conditional Access — worth knowing since the live portal won't always match older certification material.
 8. **Scoping restricts visibility, not just actions.** Both the Administrative Unit and the custom RBAC role showed accounts/resources disappearing from view entirely, rather than throwing an access-denied error.
 9. **Eligible ≠ Active, and it's easy to get one when you meant the other.** This tenant's Entra ID P2 license extends PIM governance to Azure resource roles by default — two separate role assignments in Project 4 landed as Eligible when Active was intended.
-10. **A Resource Lock is the strongest guardrail in the whole RBAC toolkit.** It's the only control so far that held even against the tenant's own Global Administrator.
+10. **A Resource Lock is the strongest guardrail in the whole RBAC toolkit** — strong enough that it later blocked its owner's own cleanup work in Project 6 until it was deliberately lifted.
 11. **Portal wizards default to the option that costs more or does more than asked.** Geo-redundant storage over Locally-redundant, and an auto-enabled backup vault during file share creation, both surfaced in Project 5 alone — worth a second look on every Create screen, not just these two.
 12. **A soft-deleted resource often isn't visible in the default UI view**, which can look identical to a permanent delete if the filter itself isn't known. Visibility settings deserve as much attention as the safety feature underneath them.
+13. **A subnet-level NSG rule protects any resource later placed in that subnet** — no separate NSG was needed at the VM level once `subnet-app` already had one attached.
+14. **Inbound and outbound NSG rules are not symmetric by default.** Azure's built-in rules end in an implicit Deny All for inbound traffic, but already allow outbound internet access — inbound needs explicit rules far more urgently than outbound does.
+15. **VM size availability is subscription- and region-specific, not universal.** Three different low-cost sizes were rejected as unavailable in Project 6 before one finally deployed — worth checking availability before planning around a specific SKU.
+16. **Deleting a resource doesn't always delete what it created.** Azure Bastion's auto-generated public IP survives Bastion's own deletion and has to be cleaned up as a separate step.
 
 ---
 
@@ -165,7 +191,7 @@ Summary of what was built:
 | 3 | Identity Security — MFA, Conditional Access, Identity Protection | ✅ Complete |
 | 4 | RBAC & Delegated Administration (M365 + Azure) | ✅ Complete |
 | 5 | Azure Storage | ✅ Complete |
-| 6 | Azure Networking | AZ-104 |
+| 6 | Azure Networking — VNet, NSG, Peering, Bastion | ✅ Complete |
 | 7 | Azure Compute (+ on-prem-style AD DS for Defender for Identity) | AZ-104 / SC-200 |
 | 8 | Email Security — Exchange + Defender for Office 365 | M365 / SC-200 |
 | 9 | Endpoint Security — Intune + Defender for Endpoint | M365 / SC-200 |
