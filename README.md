@@ -2,7 +2,7 @@
 
 **Building a real, hands-on Microsoft 365 + Azure security and administration environment — end to end, on free-tier and trial subscriptions only — in preparation for Microsoft 365 Administration, SC-200 (Security Operations Analyst), and AZ-104 (Azure Administrator).**
 
-![Cost](https://img.shields.io/badge/cost-%240-success) ![Status](https://img.shields.io/badge/status-in%20progress-blue) ![Projects](https://img.shields.io/badge/projects-6%20of%2016%20complete-orange)
+![Cost](https://img.shields.io/badge/cost-%240-success) ![Status](https://img.shields.io/badge/status-in%20progress-blue) ![Projects](https://img.shields.io/badge/projects-8%20of%2016%20complete-orange)
 
 ---
 
@@ -16,7 +16,9 @@
 - [Project 4 — RBAC & Delegated Administration (M365 + Azure)](#project-4--rbac--delegated-administration-m365--azure)
 - [Project 5 — Azure Storage](#project-5--azure-storage-az-104)
 - [Project 6 — Azure Networking: VNet, NSG, Peering & Bastion](#project-6--azure-networking-vnet-nsg-peering--bastion-az-104)
-- [Key learnings across all six projects](#key-learnings-across-all-six-projects)
+- [Project 7 — Azure Compute & On-Prem-Style AD DS for Defender for Identity](#project-7--azure-compute--on-prem-style-ad-ds-for-defender-for-identity-az-104--sc-200)
+- [Project 8 — Mail Room: Exchange & Defender for Office 365](#project-8--mail-room-exchange--defender-for-office-365-m365--sc-200)
+- [Key learnings across all eight projects](#key-learnings-across-all-eight-projects)
 - [Roadmap — upcoming projects](#roadmap--upcoming-projects)
 - [About](#about)
 
@@ -161,7 +163,51 @@ Along the way: a home ISP that rotated its public IP mid-session and broke the j
 
 ---
 
-## Key learnings across all six projects
+## Project 7 — Azure Compute & On-Prem-Style AD DS for Defender for Identity (AZ-104 / SC-200)
+
+**Goal:** stand up the core compute layer on top of the Project 6 network — a Windows Server VM and a Linux VM, resized and snapshotted like real production workloads — then deliberately promote the Windows VM to an Active Directory Domain Controller so it generates the kind of real, on-prem-style identity telemetry that Microsoft Defender for Identity is actually built to monitor, rather than relying on synthetic data.
+
+**📄 Full detail (all steps documented): [`project-7-compute-full/README.md`](./project-7-compute-full/README.md)**
+
+Summary of what was built:
+
+- **Two VMs deployed into `vnet-lab-sc200`/`subnet-app`** from Project 6 — a Windows Server VM (`vm-win-addc`) and an Ubuntu Linux VM (`vm-ubuntu-lab`)
+- **VM resize, managed disk & snapshot** — resized a running VM to a different size, then created a managed disk snapshot as a point-in-time backup mechanic
+- **Custom Script Extension** — deployed automation directly onto a VM at runtime, reusing the Project 5 storage account (`strakibullab01`/`mycontainer`) as the script's source
+- **Active Directory promotion** — `vm-win-addc` promoted to a Domain Controller for a brand-new forest, `rakibul.local`, using the standard AD DS Configuration Wizard
+- **Microsoft Defender for Identity sensor** — installed and verified on the new domain controller, registered correctly as a domain-controller-type sensor for `rakibul.local`
+- **Cost control** — both VMs stopped (deallocated) once verification was complete, to avoid ongoing compute charges between sessions
+
+Along the way: a first-time Defender for Identity workspace provisioning failure that turned out to be a temporary Microsoft-side backend delay rather than a licensing problem, an initial attempt at the newer "Activate servers" sensor method that was abandoned in favor of the classic sensor installer (since "Activate servers" requires separate Defender for Endpoint device onboarding), and a SAS-token-based workaround to get the sensor installer file onto the VM through Azure Bastion, which has no native file-upload feature of its own.
+
+*Highlight: a live Defender for Identity sensor reporting against a real Active Directory forest — `rakibul.local` — built specifically to feed realistic identity signals into the SC-200 detection projects still ahead on the roadmap.*
+
+---
+
+## Project 8 — Mail Room: Exchange & Defender for Office 365 (M365 / SC-200)
+
+**Goal:** build and secure the mail layer of the tenant — a shared mailbox, a mail flow rule, and message trace verification in Exchange admin center, followed by custom anti-phishing, anti-spam, and anti-malware policies, a real EICAR anti-malware detection test, a Safe Links URL-scanning test, and a full end-to-end phishing attack simulation in Microsoft Defender for Office 365.
+
+**📄 Full detail (99 screenshots, every sub-step documented): [`project-8-mail-protection/README.md`](./project-8-mail-protection/README.md)**
+
+Summary of what was built:
+
+- **Shared mailbox** — `IT Support`, with Md. Imran Ahmed and Pallob Kumar Roy granted Full Access as delegates
+- **Mail flow rule** — a subject-keyword rule that Bcc's the admin whenever "confidential" appears, deployed in Audit (Test) mode first, matching this lab's established Report-only discipline
+- **Message trace** — verified end-to-end delivery of a test message and confirmed (with a short reporting delay) that the mail flow rule had genuinely executed
+- **Custom threat policies** — a dedicated anti-phishing policy with per-user impersonation protection, a stricter anti-spam policy with a lowered bulk-email threshold, and an anti-malware policy with the common attachments filter and zero-hour auto purge enabled
+- **EICAR test** — sent the industry-standard, harmless EICAR test file as an attachment and confirmed it was automatically quarantined with reason: **Malware**
+- **Safe Links test** — created a custom Safe Links policy with real-time URL scanning enabled across Email, Teams, and Office apps
+- **Attack Simulation Training** — ran a full Credential Harvest phishing simulation against all four test accounts, observed the phishing email land, clicked through to the fake credential page, was redirected to the education landing page, and confirmed the outcome in the admin report: 1 click, 1 compromised credential
+
+Along the way: two real backend errors were hit and resolved — an anti-phishing policy that failed to save until an explicit quarantine policy was selected for the "Quarantine the message" action, and a browser that opened the EICAR test file as plain text instead of downloading it, fixed by using the official zipped package instead.
+
+![Quarantine list confirms the anti-malware policy caught the EICAR test file](./project-8-mail-protection/images/86.png)
+*Quarantine reason: Malware — direct proof that the custom anti-malware policy built earlier in this project is actually working.*
+
+---
+
+## Key learnings across all eight projects
 
 1. **Payment failures can be bank-side, not account-side.** A domestic debit card that verifies a one-time Azure hold can still be blocked on a recurring-billing merchant. A dual-currency credit card resolved it reliably.
 2. **Always confirm which tenant is active before provisioning.** Azure and Microsoft 365 sessions can silently diverge into different directories even when the sign-in usernames look identical — this cost an entire rebuild.
@@ -179,6 +225,14 @@ Along the way: a home ISP that rotated its public IP mid-session and broke the j
 14. **Inbound and outbound NSG rules are not symmetric by default.** Azure's built-in rules end in an implicit Deny All for inbound traffic, but already allow outbound internet access — inbound needs explicit rules far more urgently than outbound does.
 15. **VM size availability is subscription- and region-specific, not universal.** Three different low-cost sizes were rejected as unavailable in Project 6 before one finally deployed — worth checking availability before planning around a specific SKU.
 16. **Deleting a resource doesn't always delete what it created.** Azure Bastion's auto-generated public IP survives Bastion's own deletion and has to be cleaned up as a separate step.
+17. **Building real on-prem-style infrastructure inside Azure pays off later.** Promoting a VM to an actual Active Directory Domain Controller (rather than skipping straight to cloud-only identity) is what makes Microsoft Defender for Identity's sensor produce genuine telemetry for the detection projects still ahead.
+18. **A "no data" backend error can be a temporary delay, not a real failure.** The first Defender for Identity workspace provisioning attempt failed, then succeeded on retry with no configuration changes — worth ruling out a transient Microsoft-side issue before troubleshooting further.
+19. **Not every "newer" method is the right one for the current setup.** Defender for Identity's newer "Activate servers" sensor method assumes Defender for Endpoint device onboarding is already in place; the classic sensor installer was the correct choice here instead.
+20. **Exchange mail flow rules are disabled by default after creation** and must be manually enabled before they will actually process anything.
+21. **Anti-phishing, anti-spam, and anti-malware are three genuinely separate detection layers**, each with its own action pipeline (reject, quarantine, move to junk) — full mail protection needs all three configured, not just the tenant defaults.
+22. **The EICAR test string is completely harmless and industry-standard**, but it still has to be delivered as a real file — some browsers will render a `.com`/`.txt` test file as plain text instead of downloading it, which looks like a failure but isn't one.
+23. **Wizard-level validation errors don't always explain themselves.** A generic "Client Error" on the anti-phishing policy wizard turned out to trace back to one specific unset dropdown (the quarantine policy) several steps back in the flow.
+24. **Attack Simulation Training's full lifecycle — delivery, click, credential harvest, education, and reporting — can be observed end to end** using only the lab's existing test accounts, at zero additional cost.
 
 ---
 
@@ -192,8 +246,8 @@ Along the way: a home ISP that rotated its public IP mid-session and broke the j
 | 4 | RBAC & Delegated Administration (M365 + Azure) | ✅ Complete |
 | 5 | Azure Storage | ✅ Complete |
 | 6 | Azure Networking — VNet, NSG, Peering, Bastion | ✅ Complete |
-| 7 | Azure Compute (+ on-prem-style AD DS for Defender for Identity) | AZ-104 / SC-200 |
-| 8 | Email Security — Exchange + Defender for Office 365 | M365 / SC-200 |
+| 7 | Azure Compute (+ on-prem-style AD DS for Defender for Identity) | ✅ Complete |
+| 8 | Email Security — Exchange + Defender for Office 365 | ✅ Complete |
 | 9 | Endpoint Security — Intune + Defender for Endpoint | M365 / SC-200 |
 | 10 | Collaboration & Cloud App Security | M365 / SC-200 |
 | 11 | Data Protection & Compliance | M365 |
